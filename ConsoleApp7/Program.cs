@@ -149,6 +149,7 @@ namespace BankSystem
                                 receiver.History.Add(receiveEntry);
 
                                 Console.WriteLine(sendEntry);
+                                System.Console.WriteLine(receiveEntry);
 
 
                             }
