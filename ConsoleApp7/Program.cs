@@ -96,22 +96,20 @@ namespace BankSystem
                                     System.Console.WriteLine("This choice is wrong..");
                                     continue;
                             }
-                            if (amount > currentUser.BankAccount.Balance)
+                            try
                             {
-                                System.Console.WriteLine("You don't have enough money in your cart..");
-                            }
-                            else
-                            {
-                                currentUser.BankAccount.Balance -= amount;
 
+                                currentUser.BankAccount.Withdraw(amount);
                                 string historyEntry = $"{DateTime.Now}: Withdrawn {amount} AZN";
-
                                 currentUser.History.Add(historyEntry);
-
                                 Console.WriteLine(historyEntry);
                                 System.Console.WriteLine($"{amount} AZN was successfully withdrawn from the card");
                                 System.Console.WriteLine($"Current balance: {currentUser.BankAccount.Balance} AZN");
+                            }
 
+                            catch (Exception ex)
+                            {
+                                System.Console.WriteLine($"Error: {ex.Message}");
                             }
                         }
 
@@ -142,8 +140,8 @@ namespace BankSystem
                                 currentUser.BankAccount.Balance -= transferAmount;
                                 receiver.BankAccount.Balance += transferAmount;
 
-                                string sendEntry = $"{DateTime.Now}: Sent {transferAmount} AZN to {receiver.Name} {receiver.Surname}";
-                                string receiveEntry = $"{DateTime.Now}: Received {transferAmount} AZN from {currentUser.Name} {currentUser.Surname}";
+                                string sendEntry = $"{DateTime.Now}: Sent {transferAmount} AZN to {receiver.Name} {receiver.Surname}'s new balance: {receiver.BankAccount.Balance}";
+                                string receiveEntry = $"{DateTime.Now}: Received {transferAmount} AZN from {currentUser.Name} {currentUser.Surname}'s new balance: {currentUser.BankAccount.Balance}";
 
                                 currentUser.History.Add(sendEntry);
                                 receiver.History.Add(receiveEntry);
@@ -179,7 +177,7 @@ namespace BankSystem
                         else if (choice == "6")
                         {
                             System.Console.WriteLine("Log out from bank system");
-                            break;
+                            return;
                         }
                         else
                         {
@@ -213,6 +211,16 @@ namespace BankSystem
             CVC = cvc;
             ExpireDate = expiredate;
             Balance = balance;
+        }
+
+        public void Withdraw(double amount)
+        {
+            if (amount > Balance)
+            {
+                throw new ArgumentOutOfRangeException("Not enough balance in your card..");
+            }
+
+            Balance -= amount;
         }
 
     }
@@ -274,60 +282,59 @@ Balance: {BankAccount.Balance} AZN";
             }
             return null;
         }
-        
 
 
 public void ShowClientsWithCursor()
-{
-    if (Clients == null || Clients.Length == 0)
-    {
-        Console.WriteLine("No clients available.");
-        return;
-    }
-
-    int cursorPos = 0;
-    ConsoleKeyInfo keyInfo;
-
-    do
-    {
-        Console.Clear();
-        Console.WriteLine("Use Up/Down arrows to move, ESC to exit:");
-
-        for (int i = 0; i < Clients.Length; i++)
         {
-            if (i == cursorPos)
+            if (Clients == null || Clients.Length == 0)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"> {Clients[i].Name} {Clients[i].Surname}");
-                Console.ResetColor();
+                Console.WriteLine("No clients available.");
+                return;
             }
-            else
+
+            int cursorPos = 0;
+            ConsoleKeyInfo keyInfo;
+
+            do
             {
-                Console.WriteLine($"  {Clients[i].Name} {Clients[i].Surname}");
-            }
+                Console.Clear();
+                Console.WriteLine("Use Up/Down arrows to move, ESC to exit:");
+
+                for (int i = 0; i < Clients.Length; i++)
+                {
+                    if (i == cursorPos)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"> {Clients[i].Name} {Clients[i].Surname}");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"  {Clients[i].Name} {Clients[i].Surname}");
+                    }
+                }
+
+                keyInfo = Console.ReadKey(true);
+
+                if (keyInfo.Key == ConsoleKey.UpArrow)
+                {
+                    cursorPos--;
+                    if (cursorPos < 0) cursorPos = Clients.Length - 1;
+                }
+                else if (keyInfo.Key == ConsoleKey.DownArrow)
+                {
+                    cursorPos++;
+                    if (cursorPos >= Clients.Length) cursorPos = 0;
+                }
+
+            } while (keyInfo.Key != ConsoleKey.Escape);
+
+            Console.Clear();
+            Console.WriteLine("Selected client:");
+            Console.WriteLine(Clients[cursorPos]);
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
         }
-
-        keyInfo = Console.ReadKey(true);
-
-        if (keyInfo.Key == ConsoleKey.UpArrow)
-        {
-            cursorPos--;
-            if (cursorPos < 0) cursorPos = Clients.Length - 1;
-        }
-        else if (keyInfo.Key == ConsoleKey.DownArrow)
-        {
-            cursorPos++;
-            if (cursorPos >= Clients.Length) cursorPos = 0;
-        }
-
-    } while (keyInfo.Key != ConsoleKey.Escape);
-
-    Console.Clear();
-    Console.WriteLine("Selected client:");
-    Console.WriteLine(Clients[cursorPos]);
-    Console.WriteLine("Press any key to continue...");
-    Console.ReadKey();
-}
 
     }
 
